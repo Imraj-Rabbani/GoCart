@@ -10,8 +10,8 @@ const StoreSidebar = ({storeInfo}) => {
 
     const sidebarLinks = [
         { name: 'Dashboard', href: '/store', icon: HomeIcon },
-        { name: 'Add Product', href: '/store/add-product', icon: SquarePlusIcon },
-        { name: 'Manage Product', href: '/store/manage-product', icon: SquarePenIcon },
+        { name: 'Add Design', href: '/store/add-design', icon: SquarePlusIcon },
+        { name: 'Manage Designs', href: '/store/manage-design', icon: SquarePenIcon },
         { name: 'Orders', href: '/store/orders', icon: LayoutListIcon },
     ]
 

@@ -28,9 +28,9 @@ model User {
 model Product {
     id          String   @id @default(cuid())
     name        String
-    description String
+    tags        String
     mrp         Float
-    price       Float
+    color       String
     images      String[]
     category    String
     inStock     Boolean  @default(true)
@@ -42,6 +42,7 @@ model Product {
     store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
     orderItems OrderItem[]
     rating     Rating[]
+    
 }
 
 enum OrderStatus {

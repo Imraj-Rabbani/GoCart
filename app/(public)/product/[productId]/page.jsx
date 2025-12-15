@@ -1,5 +1,4 @@
 'use client'
-import ProductDescription from "@/components/ProductDescription";
 import ProductDetails from "@/components/ProductDetails";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -35,8 +34,6 @@ export default function Product() {
                 {/* Product Details */}
                 {product && (<ProductDetails product={product} />)}
 
-                {/* Description & Reviews */}
-                {product && (<ProductDescription product={product} />)}
             </div>
         </div>
     );

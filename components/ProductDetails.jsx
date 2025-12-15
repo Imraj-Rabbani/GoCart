@@ -32,12 +32,12 @@ const ProductDetails = ({ product }) => {
                 <div className="flex sm:flex-col gap-3">
                     {product.images.map((image, index) => (
                         <div key={index} onClick={() => setMainImage(product.images[index])} className="bg-slate-100 flex items-center justify-center size-26 rounded-lg group cursor-pointer">
-                            <Image src={image} className="group-hover:scale-103 group-active:scale-95 transition" alt="" width={45} height={45} />
+                            <Image src={image} className="group-hover:scale-103 group-active:scale-95 transition" alt="" width={80} height={45} />
                         </div>
                     ))}
                 </div>
                 <div className="flex justify-center items-center h-100 sm:size-113 bg-slate-100 rounded-lg ">
-                    <Image src={mainImage} alt="" width={250} height={250} />
+                    <Image src={mainImage} alt="" width={500} height={250} />
                 </div>
             </div>
             <div className="flex-1">
@@ -49,13 +49,9 @@ const ProductDetails = ({ product }) => {
                     <p className="text-sm ml-3 text-slate-500">{product.rating.length} Reviews</p>
                 </div>
                 <div className="flex items-start my-6 gap-3 text-2xl font-semibold text-slate-800">
-                    <p> {currency}{product.price} </p>
-                    <p className="text-xl text-slate-500 line-through">{currency}{product.mrp}</p>
+                    <p> {currency}{product.mrp} </p>
                 </div>
-                <div className="flex items-center gap-2 text-slate-500">
-                    <TagIcon size={14} />
-                    <p>Save {((product.mrp - product.price) / product.mrp * 100).toFixed(0)}% right now</p>
-                </div>
+                
                 <div className="flex items-end gap-5 mt-10">
                     {
                         cart[productId] && (

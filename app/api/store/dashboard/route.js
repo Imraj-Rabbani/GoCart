@@ -28,7 +28,7 @@ export async function GET(request){
             totalProducts: products.length
         }
 
-        return NextResponse.json({dashboardDataw})
+        return NextResponse.json({dashboardData})
 
     } catch (error) {
         console.log(error);

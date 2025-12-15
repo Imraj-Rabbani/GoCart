@@ -1,20 +1,30 @@
 import prisma from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { getAuth } from "@clerk/nextjs/server"
 
+import { NextResponse } from "next/server"
 
 export async function POST(request){
     try{
         const {userId} = getAuth(request)
         const {productId} = await request.json()
 
-        if (!productId) {
+        if (!userId) {
             return NextResponse.json({error: 'not authorized'}, {status: 401})
         }
 
-        const product = await prisma.product.findFirst({
-            where: {id: productId, storeId}
-        })
+        if (!productId) {
+            return NextResponse.json({ error: "Missing productId" }, { status: 400 })
+        }
 
+        const product = await prisma.product.findUnique({
+            where: {id: productId}
+        })
+        
+        
+        if (!product) {
+            return NextResponse.json({ error: "Product not found" }, { status: 404 })
+        }
+                
         await prisma.product.update({
             where: {id: productId},
             data: {inStock: !product.inStock}

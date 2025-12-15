@@ -4,85 +4,107 @@ import { getAuth } from "@clerk/nextjs/server";
 import { toFile } from "@imagekit/nodejs";
 import { NextResponse } from "next/server";
 
-
-
-//create the store
-export async function POST(request){
+export async function POST(request) {
     try {
-        const {userId} = getAuth(request)
-        const formData = await request.formData()
+        const { userId } = getAuth(request);
 
-        const name = formData.get("name")
-        const username = formData.get("username")
-        const description = formData.get("description")
-        const email = formData.get("email")
-        const contact = formData.get("contact")
-        const address = formData.get("address")
-        const image = formData.get("image")
-
-        if(!name || !username || !description || !email || !contact || !address || !image){
-            return NextResponse.json({error: "missing store info"},{status: 400})
-        }
-        //checking if user already have a store
-        const store = await prisma.store.findFirst({
-            where: { userId: userId}
-        })
-
-        if(store){
-            return NextResponse.json({status: store.status})
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const isUsernameTaken = await prisma.store.findFirst({
-            where: {username : username.toLowerCase()}
-        })
+        const formData = await request.formData();
 
-        if(isUsernameTaken){
-            return NextResponse.json({error: "Shop Username already taken"}, {status:400});
+        const name = formData.get("name");
+        const username = formData.get("username");
+        const description = formData.get("description");
+        const email = formData.get("email");
+        const contact = formData.get("contact");
+        const address = formData.get("address");
+        const image = formData.get("image"); // File object
+
+        // Required validation
+        if (!name || !username || !description || !email || !contact || !address || !image) {
+            return NextResponse.json(
+                { error: "Missing required fields" },
+                { status: 400 }
+            );
         }
 
+        // Check if user already created a store
+        const existingStore = await prisma.store.findFirst({
+            where: { userId }
+        });
 
-        
-        const response = await imageKit.files.upload({
-            file: image, 
+        if (existingStore) {
+            return NextResponse.json(
+                { status: existingStore.status },
+                { status: 200 }
+            );
+        }
+
+        // Check if store username already exists
+        const usernameTaken = await prisma.store.findFirst({
+            where: { username: username.toLowerCase() }
+        });
+
+        if (usernameTaken) {
+            return NextResponse.json(
+                { error: "Shop username already taken" },
+                { status: 400 }
+            );
+        }
+
+        // Convert File to Buffer
+        const arrayBuffer = await image.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Upload Image to ImageKit
+        const uploaded = await imageKit.files.upload({
+            file: await toFile(buffer, image.name),
             fileName: image.name,
             folder: "logos"
-        })
+        });
 
-        const optimizedImage = imageKit.helper.buildSrc({
-            src: response.filePath,
-            transformation: [
-                {quality: "auto"},
-                {format: "webp"},
-                {width: "512"}
-            ]
-        })
+        
 
+        // Create Store in DB
         const newStore = await prisma.store.create({
             data: {
                 userId,
                 name,
                 description,
-                username:userId.toLowerCase(),
+                username: username.toLowerCase(),
                 email,
                 contact,
                 address,
-                logo: optimizedImage
+                logo: uploaded.url
             }
-        })
+        });
 
+        // Connect store to User
         await prisma.user.update({
-            where: {id:userId},
-            data: {store: {connect: {id: newStore.id}}}
-        })
+            where: { id: userId },
+            data: {
+                store: { connect: { id: newStore.id } }
+            }
+        });
 
-        return NextResponse.json({message: "applied, waiting for approval"})
-
+        return NextResponse.json({
+            message: "Store created successfully. Waiting for approval.",
+            storeId: newStore.id
+        });
 
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({error: error.code ||error.message}, {status: 400})
+        console.error("Store Create Error:", error);
+
+        return NextResponse.json(
+            { error: error.code || error.message || "Something went wrong" },
+            { status: 500 }
+        );
     }
 }
+
+
 
 export async function GET(request){
     try {

@@ -27,9 +27,6 @@ const Navbar = () => {
 
                     <Link href="/" className="relative text-4xl font-semibold text-slate-700">
                         <span className="text-green-600">go</span>cart<span className="text-green-600 text-5xl leading-0">.</span>
-                        <p className="absolute text-xs font-semibold -top-1 -right-8 px-3 p-0.5 rounded-full flex items-center gap-2 text-white bg-green-500">
-                            plus
-                        </p>
                     </Link>
 
                     {/* Desktop Menu */}
@@ -63,36 +60,7 @@ const Navbar = () => {
                             </UserButton>
                         )
                     }
-
-                        
-
-                    </div>
-
-                    {/* Mobile User Button  */}
-                    {/* {
-                        !user ? (
-                            <div className="sm:hidden">
-                        <button onclick={openSignIn} className="px-7 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-sm transition text-white rounded-full">
-                            Login
-                        </button>
-                    </div>
-                        ) : (
-                            <div>
-                            <UserButton>
-                                <UserButton.MenuItems>
-                                    <UserButton.Action labelIcon={<ShoppingCart size={16}/>} label="Cart" onClick={()=>router.push('/cart')}/>
-                                </UserButton.MenuItems>
-                            </UserButton>
-                             <UserButton>
-                             <UserButton.MenuItems>
-                                 <UserButton.Action labelIcon={<PackageIcon size={16}/>} label="My Orders" onClick={()=>router.push('/orders')}/>
-                             </UserButton.MenuItems>
-                         </UserButton>
-                         </div>
-                        )
-                    } */}
-
-                    
+                    </div>                    
                 </div>
             </div>
             <hr className="border-gray-300" />
