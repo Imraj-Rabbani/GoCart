@@ -7,7 +7,7 @@ import React from 'react'
 
 const Hero = () => {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '৳'
 
     return (
         <div className='mx-6'>
@@ -17,7 +17,7 @@ const Hero = () => {
                     <div className='p-5 sm:p-16 relative z-10'>
                         {/* News Pill */}
                         <div className='inline-flex items-center gap-3 pr-4 p-1 rounded-full text-xs sm:text-sm bg-white/30 backdrop-blur-sm w-fit mb-6'>
-                            <span className='px-3 py-1 rounded-full bg-slate-800 text-white text-xs'>NEW ARRIVALS</span> Free Shipping on Orders Above $50! <ChevronRightIcon className='group-hover:ml-2 transition-all' size={16} />
+                            <span className='px-3 py-1 rounded-full bg-slate-800 text-white text-xs'>NEW ARRIVALS</span> Free Shipping on Orders Above ৳5000! <ChevronRightIcon className='group-hover:ml-2 transition-all' size={16} />
                         </div>
                         
                         {/* Clothing Headline */}

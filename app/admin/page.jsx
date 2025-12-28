@@ -1,5 +1,5 @@
 'use client'
-import { dummyAdminDashboardData } from "@/assets/assets"
+
 import Loading from "@/components/Loading"
 import OrdersAreaChart from "@/components/OrdersAreaChart"
 import { useAuth } from "@clerk/nextjs"
@@ -10,7 +10,7 @@ import toast from "react-hot-toast"
 
 export default function AdminDashboard() {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '৳'
 
     const {getToken} = useAuth()
 

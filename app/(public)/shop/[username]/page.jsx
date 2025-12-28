@@ -15,8 +15,7 @@ export default function StoreShop() {
     const [loading, setLoading] = useState(true)
 
     const fetchStoreData = async () => {
-        setStoreInfo(dummyStoreData)
-        setProducts(productDummyData)
+        
         setLoading(false)
     }
 

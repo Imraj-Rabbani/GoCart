@@ -6,7 +6,7 @@ import React from 'react'
 
 const ProductCard = ({ product }) => {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '৳'
 
 
     return (

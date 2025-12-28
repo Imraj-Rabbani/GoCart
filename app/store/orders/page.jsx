@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from "react"
 import Loading from "@/components/Loading"
-
 import { useAuth } from "@clerk/nextjs"
 import toast from "react-hot-toast"
 import axios from "axios"
@@ -66,7 +65,7 @@ export default function StoreOrders() {
                     <table className="w-full text-sm text-left text-gray-600">
                         <thead className="bg-gray-50 text-gray-700 text-xs uppercase tracking-wider">
                             <tr>
-                                {["Sr. No.", "Customer", "Total", "Payment", "Coupon", "Status", "Date"].map((heading, i) => (
+                                {["Sr. No.", "Customer", "Total", "Payment", "Status", "Date"].map((heading, i) => (
                                     <th key={i} className="px-4 py-3">{heading}</th>
                                 ))}
                             </tr>
@@ -84,15 +83,7 @@ export default function StoreOrders() {
                                     <td className="px-4 py-3">{order.user?.name}</td>
                                     <td className="px-4 py-3 font-medium text-slate-800">${order.total}</td>
                                     <td className="px-4 py-3">{order.paymentMethod}</td>
-                                    <td className="px-4 py-3">
-                                        {order.isCouponUsed ? (
-                                            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                                                {order.coupon?.code}
-                                            </span>
-                                        ) : (
-                                            "—"
-                                        )}
-                                    </td>
+                                    
                                     <td className="px-4 py-3" onClick={(e) => { e.stopPropagation() }}>
                                         <select
                                             value={order.status}
@@ -157,9 +148,6 @@ export default function StoreOrders() {
                         <div className="mb-4">
                             <p><span className="text-green-700">Payment Method:</span> {selectedOrder.paymentMethod}</p>
                             <p><span className="text-green-700">Paid:</span> {selectedOrder.isPaid ? "Yes" : "No"}</p>
-                            {selectedOrder.isCouponUsed && (
-                                <p><span className="text-green-700">Coupon:</span> {selectedOrder.coupon.code} ({selectedOrder.coupon.discount}% off)</p>
-                            )}
                             <p><span className="text-green-700">Status:</span> {selectedOrder.status}</p>
                             <p><span className="text-green-700">Order Date:</span> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
                         </div>

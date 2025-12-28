@@ -8,7 +8,6 @@ export default function Orders() {
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
-        setOrders(orderDummyData)
     }, []);
 
     return (
