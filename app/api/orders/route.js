@@ -1,104 +1,142 @@
 import prisma from '@/lib/prisma';
-import authSeller from '@/app/middlewares/authSeller';
 import { getAuth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-    try{
-        const {userId} = getAuth(request);
-        if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-        const {addressId, items, paymentMethod} = await request.json();
+  try {
+    const { userId } = getAuth(request);
 
-        if(!addressId || !items || !paymentMethod){
-            return NextResponse.json({ error: 'Missing Order details' }, { status: 401 });
-        }
-
-        const orderByStore = new Map();
-
-        for(const item of items){
-            const product = await prisma.product.findUnique({
-                where: {
-                    id: item.id
-                }
-            })
-        const storeId = product.storeId;
-        if(!orderByStore.has(storeId)){
-            orderByStore.set(storeId, [])
-        }
-        orderByStore.get(storeId).push({
-            ...item, price: product.price
-        })
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let orderIds = []
-    let fullAmount = 0;
-    let shippingFee = 0;
+    const { addressId, items, paymentMethod } = await request.json();
 
-    for(const [storeId, sellerItems] of orderByStore.entries()){
-        let total = sellerItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-        fullAmount += total
-
-        fullAmount += shippingFee;
-
-    const order = await prisma.order.create({
-        data: {
-            userId,
-            storeId,
-            addressId,
-            paymentMethod,
-            total: fullAmount,
-            status: "pending",
-            orderItems: {
-                create: sellerItems.map(item => ({
-                    productId: item.id,
-                    quantity: item.quantity,
-                    price: item.price
-                }))
-            }
-
-        }
-    })
-    orderIds.push(order.id)
+    if (!addressId || !items?.length || !paymentMethod) {
+      return NextResponse.json(
+        { error: 'Missing order details' },
+        { status: 400 }
+      );
     }
 
-    await prisma.user.update({
-        where: {
-            id: userId
+    // Group items by store
+    const orderByStore = new Map();
+
+    for (const item of items) {
+      const product = await prisma.product.findUnique({
+        where: { id: item.id },
+        select: {
+          id: true,
+          mrp: true,
+          storeId: true,
         },
-        data: {
-            cart:{}
-        }
-    })
+      });
 
-    return NextResponse.json({ message: "Order Placed Successfully" }); // Placeholder response
+      if (!product) {
+        throw new Error('Product not found');
+      }
 
-    } catch (error) {
-        console.log("[ORDER_POST]", error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+      if (!Number.isFinite(product.mrp)) {
+        throw new Error('Invalid product price');
+      }
+
+      if (!orderByStore.has(product.storeId)) {
+        orderByStore.set(product.storeId, []);
+      }
+
+      orderByStore.get(product.storeId).push({
+        productId: product.id,
+        quantity: item.quantity,
+        price: product.mrp, 
+      });
     }
+
+    const orderIds = [];
+    const shippingFee = 0; 
+
+    // Create orders per store
+    for (const [storeId, sellerItems] of orderByStore.entries()) {
+      const storeTotal = sellerItems.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0
+      );
+
+      if (!Number.isFinite(storeTotal)) {
+        throw new Error('Invalid order total');
+      }
+
+      const order = await prisma.order.create({
+        data: {
+          user: {
+            connect: { id: userId },
+          },
+          store: {
+            connect: { id: storeId },
+          },
+          address: {
+            connect: { id: addressId },
+          },
+          total: storeTotal + shippingFee,
+          paymentMethod,
+          isPaid: false,
+          orderItems: {
+            create: sellerItems.map(item => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+          },
+        },
+      });
+
+      orderIds.push(order.id);
+    }
+
+    // Clear cart
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        cart: {},
+      },
+    });
+
+    return NextResponse.json({
+      message: 'Order placed successfully',
+      orderIds,
+    });
+  } catch (error) {
+    console.error('[ORDER_POST]', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
 }
 
-
-
 export async function GET(request) {
-    try {
-        const {userId} = getAuth(request);
-        if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-        const orders = await prisma.order.findMany({
-            where: {
-                userId
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        })
-        return NextResponse.json({ orders });
-    } catch (error) {
-        console.error(error)
-        return NextResponse.json({ error: error.message }, { status: 400 });
+  try {
+    const { userId } = getAuth(request);
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const orders = await prisma.order.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        orderItems: true,
+        store: true,
+        address: true,
+      },
+    });
+
+    return NextResponse.json({ orders });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: error.message },
+      { status: 400 }
+    );
+  }
 }

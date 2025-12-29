@@ -1,4 +1,4 @@
-import { PlusIcon, SquarePenIcon, XIcon } from 'lucide-react';
+import { PlusIcon, SquarePenIcon } from 'lucide-react';
 import React, { useState } from 'react'
 import AddressModal from './AddressModal';
 import { useDispatch, useSelector } from 'react-redux';
@@ -47,10 +47,10 @@ const OrderSummary = ({ totalPrice, items }) => {
            })
 
            toast.success("Order placed successfully");
-           router.push('/orders')
+           router.push('/')
            dispatch(fetchCart({getToken}))
         } catch (error) {
-            toast.error("Failed to place order"); 
+            
         }
     }
 

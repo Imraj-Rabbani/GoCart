@@ -1,7 +1,6 @@
 'use client'
 
 import Loading from "@/components/Loading"
-import OrdersAreaChart from "@/components/OrdersAreaChart"
 import { useAuth } from "@clerk/nextjs"
 import axios from "axios"
 import { CircleDollarSignIcon, ShoppingBasketIcon, StoreIcon, TagsIcon } from "lucide-react"
@@ -77,8 +76,7 @@ export default function AdminDashboard() {
                 }
             </div>
 
-            {/* Area Chart */}
-            <OrdersAreaChart allOrders={dashboardData.allOrders} />
+            
         </div>
     )
 }
